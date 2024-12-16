@@ -14,7 +14,7 @@ export class EncryptionService {
       const keyPair = await window.crypto.subtle.generateKey(
         algorithm,
         true,
-        ['encrypt']  // Only need encrypt for public key
+        ['encrypt', 'decrypt']  // Both usages required for RSA-OAEP key generation
       );
 
       // Export the public key to verify it's properly initialized
