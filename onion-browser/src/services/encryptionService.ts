@@ -2,56 +2,79 @@ import { Circuit, EncryptedPackage } from '../types/tor';
 
 export class EncryptionService {
   private static async stringToPublicKey(keyString: string): Promise<CryptoKey> {
-    // For mock implementation, create a temporary key pair
-    const keyPair = await window.crypto.subtle.generateKey(
-      {
-        name: 'RSA-OAEP',
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: 'SHA-256',
-      },
-      true,
-      ['encrypt', 'wrapKey'] // Added proper key usages
-    );
-    return keyPair.publicKey;
+    // For mock implementation, generate a proper RSA key pair
+    const algorithm = {
+      name: 'RSA-OAEP',
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: { name: 'SHA-256' },
+    };
+
+    try {
+      const keyPair = await window.crypto.subtle.generateKey(
+        algorithm,
+        true,
+        ['encrypt']  // Only need encrypt for public key
+      );
+
+      // Export the public key to verify it's properly initialized
+      await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
+
+      return keyPair.publicKey;
+    } catch (error) {
+      console.error('Error generating key pair:', error);
+      throw error;
+    }
   }
 
   private static async encryptForNode(data: ArrayBuffer, publicKeyString: string): Promise<ArrayBuffer> {
-    const publicKey = await this.stringToPublicKey(publicKeyString);
-    return await window.crypto.subtle.encrypt(
-      { name: 'RSA-OAEP' },
-      publicKey,
-      data
-    );
+    try {
+      const publicKey = await this.stringToPublicKey(publicKeyString);
+      return await window.crypto.subtle.encrypt(
+        {
+          name: 'RSA-OAEP'
+        },
+        publicKey,
+        data
+      );
+    } catch (error) {
+      console.error('Error encrypting data:', error);
+      throw error;
+    }
   }
 
   public static async buildCircuit(circuit: Circuit, payload: ArrayBuffer): Promise<EncryptedPackage> {
-    // Layer 3: Encrypt for exit node
-    let encryptedData = await this.encryptForNode(payload, circuit.exit.public_key);
+    try {
+      // Layer 3: Encrypt for exit node
+      let encryptedData = await this.encryptForNode(payload, circuit.exit.public_key);
 
-    // Layer 2: Encrypt for middle node
-    const middlePackage = {
-      data: encryptedData,
-      nextNode: circuit.exit.id
-    };
-    encryptedData = await this.encryptForNode(
-      new TextEncoder().encode(JSON.stringify(middlePackage)),
-      circuit.middle.public_key
-    );
+      // Layer 2: Encrypt for middle node
+      const middlePackage = {
+        data: encryptedData,
+        nextNode: circuit.exit.id
+      };
+      encryptedData = await this.encryptForNode(
+        new TextEncoder().encode(JSON.stringify(middlePackage)),
+        circuit.middle.public_key
+      );
 
-    // Layer 1: Encrypt for entry node
-    const entryPackage = {
-      data: encryptedData,
-      nextNode: circuit.middle.id
-    };
-    encryptedData = await this.encryptForNode(
-      new TextEncoder().encode(JSON.stringify(entryPackage)),
-      circuit.entry.public_key
-    );
+      // Layer 1: Encrypt for entry node
+      const entryPackage = {
+        data: encryptedData,
+        nextNode: circuit.middle.id
+      };
+      encryptedData = await this.encryptForNode(
+        new TextEncoder().encode(JSON.stringify(entryPackage)),
+        circuit.entry.public_key
+      );
 
-    return {
-      data: encryptedData,
-      nextNode: circuit.entry.id
-    };
+      return {
+        data: encryptedData,
+        nextNode: circuit.entry.id
+      };
+    } catch (error) {
+      console.error('Error building circuit:', error);
+      throw error;
+    }
   }
 }
