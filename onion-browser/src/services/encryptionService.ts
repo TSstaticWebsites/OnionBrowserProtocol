@@ -1,19 +1,6 @@
-import { TorNode, Circuit, EncryptedPackage } from '../types/tor';
+import { Circuit, EncryptedPackage } from '../types/tor';
 
 export class EncryptionService {
-  private static async generateKeyPair(): Promise<CryptoKeyPair> {
-    return await window.crypto.subtle.generateKey(
-      {
-        name: 'RSA-OAEP',
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: 'SHA-256',
-      },
-      true,
-      ['encrypt', 'decrypt']
-    );
-  }
-
   private static async encryptForNode(data: ArrayBuffer, publicKey: CryptoKey): Promise<ArrayBuffer> {
     return await window.crypto.subtle.encrypt(
       { name: 'RSA-OAEP' },
