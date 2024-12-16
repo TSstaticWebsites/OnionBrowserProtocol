@@ -11,7 +11,7 @@ export class EncryptionService {
         hash: 'SHA-256',
       },
       true,
-      ['encrypt']
+      ['encrypt', 'wrapKey'] // Added proper key usages
     );
     return keyPair.publicKey;
   }
