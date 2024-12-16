@@ -1,0 +1,1 @@
+# Dependencies\nnode_modules/\n\n# Environment\n.env\n.env.local\n.env.*.local\n\n# Build\ndist/\nbuild/\n\n# IDE\n.idea/\n.vscode/\n*.swp\n*.swo\n\n# OS\n.DS_Store\nThumbs.db
