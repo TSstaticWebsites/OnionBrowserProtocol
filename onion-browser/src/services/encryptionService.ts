@@ -45,32 +45,37 @@ export class EncryptionService {
 
   public static async buildCircuit(circuit: Circuit, payload: ArrayBuffer): Promise<EncryptedPackage> {
     try {
+      const encryptedLayers: ArrayBuffer[] = [];
+
       // Layer 3: Encrypt for exit node
       let encryptedData = await this.encryptForNode(payload, circuit.exit.public_key);
+      encryptedLayers.push(encryptedData);
 
       // Layer 2: Encrypt for middle node
       const middlePackage = {
         data: encryptedData,
-        nextNode: circuit.exit.id
+        next_hop: circuit.exit.id
       };
       encryptedData = await this.encryptForNode(
         new TextEncoder().encode(JSON.stringify(middlePackage)),
         circuit.middle.public_key
       );
+      encryptedLayers.push(encryptedData);
 
       // Layer 1: Encrypt for entry node
       const entryPackage = {
         data: encryptedData,
-        nextNode: circuit.middle.id
+        next_hop: circuit.middle.id
       };
       encryptedData = await this.encryptForNode(
         new TextEncoder().encode(JSON.stringify(entryPackage)),
         circuit.entry.public_key
       );
+      encryptedLayers.push(encryptedData);
 
       return {
-        data: encryptedData,
-        nextNode: circuit.entry.id
+        data: encryptedLayers.reverse(), // Reverse to get entry->middle->exit order
+        next_hop: circuit.entry.id
       };
     } catch (error) {
       console.error('Error building circuit:', error);

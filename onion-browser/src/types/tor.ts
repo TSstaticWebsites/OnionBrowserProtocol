@@ -12,6 +12,6 @@ export interface Circuit {
 }
 
 export interface EncryptedPackage {
-  data: ArrayBuffer;
-  nextNode: string;
+  data: ArrayBuffer[];  // Array of encrypted layers
+  next_hop: string;    // Changed from nextNode to match proxy model
 }
