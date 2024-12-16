@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Circuit, TorNode } from '../types/tor';
+import { useState, useEffect } from 'react';
+import { Circuit } from '../types/tor';
 import { fetchAvailableNodes, selectCircuitNodes } from '../services/nodeService';
 import { EncryptionService } from '../services/encryptionService';
 import { sendToEntryProxy } from '../services/proxyService';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card } from './ui/card';
 
 export function OnionBrowser() {
   const [url, setUrl] = useState('');
@@ -59,36 +56,46 @@ export function OnionBrowser() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <Card className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Onion Browser</h1>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '1rem' }}>
+      <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '4px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+          Onion Browser
+        </h1>
 
-        <div className="flex gap-2 mb-4">
-          <Input
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+          <input
             type="text"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
             placeholder="Enter .onion URL"
-            className="flex-1"
+            style={{ flex: 1, padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
           />
-          <Button
+          <button
             onClick={handleBrowse}
             disabled={loading || !circuit}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: loading || !circuit ? '#ccc' : '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: loading || !circuit ? 'not-allowed' : 'pointer'
+            }}
           >
             {loading ? 'Loading...' : 'Browse'}
-          </Button>
+          </button>
         </div>
 
         {error && (
-          <div className="text-red-500 mb-4">{error}</div>
+          <div style={{ color: '#dc3545', marginBottom: '1rem' }}>{error}</div>
         )}
 
         {content && (
-          <div className="mt-4 p-4 border rounded">
+          <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '4px' }}>
             <div dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }
