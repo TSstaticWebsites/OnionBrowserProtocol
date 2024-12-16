@@ -1,15 +1,18 @@
 import { EncryptedPackage } from '../types/tor';
 
-const ENTRY_PROXY_URL = 'http://localhost:8001'; // Update with actual proxy URL
+const ENTRY_PROXY_URL = 'http://localhost:8001';
 
 export async function sendToEntryProxy(pkg: EncryptedPackage): Promise<Response> {
   try {
-    const response = await fetch(`${ENTRY_PROXY_URL}/forward`, {
+    const response = await fetch(`${ENTRY_PROXY_URL}/relay`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(pkg),
+      body: JSON.stringify({
+        packages: [pkg],
+        entry_node: pkg.nextNode
+      }),
     });
 
     if (!response.ok) {

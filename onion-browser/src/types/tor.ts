@@ -1,8 +1,8 @@
 export interface TorNode {
   id: string;
-  publicKey: CryptoKey;
+  public_key: string;  // Changed from CryptoKey to string to match proxy response
+  role: 'entry' | 'middle' | 'exit';  // Added role field
   address: string;
-  port: number;
 }
 
 export interface Circuit {
