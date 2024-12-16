@@ -17,12 +17,15 @@ export function OnionBrowser() {
 
   async function setupCircuit() {
     try {
+      console.log('Setting up Tor circuit...');
       const nodes = await fetchAvailableNodes();
+      console.log('Available nodes:', nodes);
       const selectedNodes = selectCircuitNodes(nodes);
+      console.log('Circuit established:', selectedNodes);
       setCircuit(selectedNodes);
     } catch (error) {
       setError('Failed to setup Tor circuit');
-      console.error(error);
+      console.error('Circuit setup error:', error);
     }
   }
 
@@ -36,20 +39,26 @@ export function OnionBrowser() {
     setError('');
 
     try {
+      console.log('Starting onion site access...');
       // Prepare the payload (URL request)
       const payload = new TextEncoder().encode(url);
+      console.log('Encoded URL payload');
 
       // Build encrypted package through the circuit
+      console.log('Building encrypted package...');
       const encryptedPackage = await EncryptionService.buildCircuit(circuit, payload);
+      console.log('Encrypted package built successfully');
 
       // Send through entry proxy
+      console.log('Sending package to entry proxy...');
       const response = await sendToEntryProxy(encryptedPackage);
+      console.log('Received response from entry proxy');
       const html = await response.text();
 
       setContent(html);
     } catch (error) {
       setError('Failed to fetch content');
-      console.error(error);
+      console.error('Browse error:', error);
     } finally {
       setLoading(false);
     }
