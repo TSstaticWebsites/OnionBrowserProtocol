@@ -121,11 +121,13 @@ export const OnionBrowser: React.FC = () => {
                 encryptionStage={encryptionStage}
                 packages={packages}
               />
-              <div className="text-sm text-muted-foreground">
-                Circuit Path: {circuit.entryNode.id.slice(0, 8)}
-                → {circuit.middleNode.id.slice(0, 8)}
-                → {circuit.exitNode.id.slice(0, 8)}
-              </div>
+              {circuit.entryNode && circuit.middleNode && circuit.exitNode && (
+                <div className="text-sm text-muted-foreground">
+                  Circuit Path: {circuit.entryNode.id.slice(0, 8)}
+                  → {circuit.middleNode.id.slice(0, 8)}
+                  → {circuit.exitNode.id.slice(0, 8)}
+                </div>
+              )}
             </div>
           )}
 
