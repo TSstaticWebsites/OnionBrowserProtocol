@@ -121,7 +121,7 @@ export const OnionBrowser: React.FC = () => {
                 encryptionStage={encryptionStage}
                 packages={packages}
               />
-              {circuit.entryNode && circuit.middleNode && circuit.exitNode && (
+              {circuit.entryNode?.id && circuit.middleNode?.id && circuit.exitNode?.id && (
                 <div className="text-sm text-muted-foreground">
                   Circuit Path: {circuit.entryNode.id.slice(0, 8)}
                   → {circuit.middleNode.id.slice(0, 8)}

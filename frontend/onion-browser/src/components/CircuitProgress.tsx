@@ -59,7 +59,7 @@ export const CircuitProgress: React.FC<CircuitProgressProps> = ({
               <Shield className="w-8 h-8 text-blue-500" />
               <div className="text-xs font-medium">Entry Node</div>
               <div className="text-xs text-muted-foreground truncate w-24 text-center">
-                {circuit.entryNode.id}
+                {circuit.entryNode?.id?.slice(0, 8) || 'Unknown'}
               </div>
             </div>
 
@@ -73,7 +73,7 @@ export const CircuitProgress: React.FC<CircuitProgressProps> = ({
               <Server className="w-8 h-8 text-purple-500" />
               <div className="text-xs font-medium">Middle Node</div>
               <div className="text-xs text-muted-foreground truncate w-24 text-center">
-                {circuit.middleNode.id}
+                {circuit.middleNode?.id?.slice(0, 8) || 'Unknown'}
               </div>
             </div>
 
@@ -87,7 +87,7 @@ export const CircuitProgress: React.FC<CircuitProgressProps> = ({
               <Globe className="w-8 h-8 text-green-500" />
               <div className="text-xs font-medium">Exit Node</div>
               <div className="text-xs text-muted-foreground truncate w-24 text-center">
-                {circuit.exitNode.id}
+                {circuit.exitNode?.id?.slice(0, 8) || 'Unknown'}
               </div>
             </div>
           </div>
