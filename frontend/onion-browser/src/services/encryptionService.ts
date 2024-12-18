@@ -1,44 +1,53 @@
 import { Circuit, EncryptedPackage, TorNode } from '../types/tor';
 
+export type EncryptionStage = 'exit' | 'middle' | 'entry' | 'complete';
+
 export const encryptionService = {
-  async buildCircuit(circuit: Circuit, targetUrl: string): Promise<EncryptedPackage[]> {
-    // Create payload for exit node
+  async generateKeyPair(): Promise<{ publicKey: string; privateKey: string }> {
+    throw new Error('Waiting for node-forge implementation');
+  },
+
+  async buildCircuit(
+    circuit: Circuit,
+    targetUrl: string,
+    onProgress?: (stage: EncryptionStage) => void
+  ): Promise<EncryptedPackage[]> {
     const exitPayload = {
       url: targetUrl,
-      // Additional headers/data needed for the exit node
+      timestamp: Date.now(),
     };
 
-    // Encrypt in layers: exit -> middle -> entry
-    // Note: In a real implementation, this would use actual RSA/AES encryption
-    // For now, we'll use a placeholder encryption method
+    onProgress?.('exit');
     const exitPackage = await this.encryptForNode(
       circuit.exitNode,
       JSON.stringify(exitPayload)
     );
 
+    onProgress?.('middle');
     const middlePackage = await this.encryptForNode(
       circuit.middleNode,
       JSON.stringify({
         nextHop: circuit.exitNode.address,
-        data: exitPackage
+        data: exitPackage.data,
+        timestamp: Date.now()
       })
     );
 
+    onProgress?.('entry');
     const entryPackage = await this.encryptForNode(
       circuit.entryNode,
       JSON.stringify({
         nextHop: circuit.middleNode.address,
-        data: middlePackage
+        data: middlePackage.data,
+        timestamp: Date.now()
       })
     );
 
-    // Return packages in order: entry -> middle -> exit
+    onProgress?.('complete');
     return [entryPackage, middlePackage, exitPackage];
   },
 
   async encryptForNode(node: TorNode, data: string): Promise<EncryptedPackage> {
-    // In a real implementation, this would use the node's public key for encryption
-    // For now, we'll use a simple base64 encoding as a placeholder
     const encoded = btoa(data);
 
     return {
