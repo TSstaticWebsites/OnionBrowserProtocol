@@ -3,6 +3,7 @@ export interface TorNode {
   publicKey: string;
   role: 'entry' | 'middle' | 'exit';
   address: string;
+  flags: string[];
 }
 
 export interface Circuit {
