@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TorNode, Circuit } from '../types/tor';
 
-const DIRECTORY_PROXY_URL = process.env.REACT_APP_DIRECTORY_PROXY_URL || 'http://localhost:3001';
+const DIRECTORY_PROXY_URL = import.meta.env.VITE_DIRECTORY_PROXY_URL || 'http://localhost:3001';
 
 export const nodeService = {
   async getAvailableNodes(): Promise<TorNode[]> {

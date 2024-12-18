@@ -4,10 +4,11 @@ import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
 import { Loader2 } from 'lucide-react';
-import { TorNode, Circuit } from '../types/tor';
+import { TorNode, Circuit, EncryptedPackage } from '../types/tor';
 import { nodeService } from '../services/nodeService';
-import { encryptionService } from '../services/encryptionService';
+import { encryptionService, EncryptionStage } from '../services/encryptionService';
 import { NodeStats } from './NodeStats';
+import { CircuitProgress } from './CircuitProgress';
 
 const ENTRY_PROXY_URL = process.env.REACT_APP_ENTRY_PROXY_URL || 'http://localhost:3002';
 
@@ -18,6 +19,8 @@ export const OnionBrowser: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState<string | null>(null);
+  const [encryptionStage, setEncryptionStage] = useState<'idle' | 'exit' | 'middle' | 'entry' | 'complete'>('idle');
+  const [packages, setPackages] = useState<EncryptedPackage[]>([]);
 
   useEffect(() => {
     loadNodes();
@@ -37,14 +40,23 @@ export const OnionBrowser: React.FC = () => {
     setLoading(true);
     setError(null);
     setContent(null);
+    setEncryptionStage('idle');
+    setPackages([]);
 
     try {
       // Select nodes and build circuit
       const selectedCircuit = nodeService.selectNodes(nodes);
       setCircuit(selectedCircuit);
 
-      // Build encrypted packages
-      const packages = await encryptionService.buildCircuit(selectedCircuit, url);
+      // Build encrypted packages with progress tracking
+      const packages = await encryptionService.buildCircuit(
+        selectedCircuit,
+        url,
+        (stage: EncryptionStage) => {
+          setEncryptionStage(stage);
+        }
+      );
+      setPackages(packages);
 
       // Send to entry proxy
       const response = await fetch(ENTRY_PROXY_URL + '/relay', {
@@ -64,8 +76,10 @@ export const OnionBrowser: React.FC = () => {
 
       const html = await response.text();
       setContent(html);
+      setEncryptionStage('complete');
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred');
+      setEncryptionStage('idle');
     } finally {
       setLoading(false);
     }
@@ -101,12 +115,16 @@ export const OnionBrowser: React.FC = () => {
           )}
 
           {circuit && (
-            <div className="mt-4 space-y-2">
-              <h3 className="text-lg font-semibold">Active Circuit</h3>
-              <div className="text-sm">
-                Entry: {circuit.entryNode.id}
-                → Middle: {circuit.middleNode.id}
-                → Exit: {circuit.exitNode.id}
+            <div className="mt-4 space-y-4">
+              <CircuitProgress
+                circuit={circuit}
+                encryptionStage={encryptionStage}
+                packages={packages}
+              />
+              <div className="text-sm text-muted-foreground">
+                Circuit Path: {circuit.entryNode.id.slice(0, 8)}
+                → {circuit.middleNode.id.slice(0, 8)}
+                → {circuit.exitNode.id.slice(0, 8)}
               </div>
             </div>
           )}
