@@ -7,7 +7,12 @@ export const nodeService = {
   async getAvailableNodes(): Promise<TorNode[]> {
     try {
       const response = await axios.get(`${DIRECTORY_PROXY_URL}/nodes`);
-      return response.data;
+      return response.data.map((node: any) => ({
+        ...node,
+        role: node.flags.includes('Exit') ? 'exit' :
+              node.flags.includes('Guard') ? 'entry' :
+              'middle'
+      }));
     } catch (error) {
       console.error('Failed to fetch nodes:', error);
       throw error;

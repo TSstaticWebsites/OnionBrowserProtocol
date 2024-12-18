@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { TorNode, Circuit } from '../types/tor';
 import { nodeService } from '../services/nodeService';
 import { encryptionService } from '../services/encryptionService';
+import { NodeStats } from './NodeStats';
 
 const ENTRY_PROXY_URL = process.env.REACT_APP_ENTRY_PROXY_URL || 'http://localhost:3002';
 
@@ -72,6 +73,7 @@ export const OnionBrowser: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <NodeStats nodes={nodes} />
       <Card>
         <CardHeader>
           <CardTitle>Onion Browser</CardTitle>
