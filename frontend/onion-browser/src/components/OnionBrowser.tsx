@@ -10,7 +10,7 @@ import { encryptionService, EncryptionStage } from '../services/encryptionServic
 import { NodeStats } from './NodeStats';
 import { CircuitProgress } from './CircuitProgress';
 
-const ENTRY_PROXY_URL = process.env.REACT_APP_ENTRY_PROXY_URL || 'http://localhost:3002';
+const ENTRY_PROXY_URL = import.meta.env.VITE_ENTRY_PROXY_URL || 'http://localhost:3002';
 
 export const OnionBrowser: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -59,7 +59,7 @@ export const OnionBrowser: React.FC = () => {
       setPackages(packages);
 
       // Send to entry proxy
-      const response = await fetch(ENTRY_PROXY_URL + '/relay', {
+      const response = await fetch(`${ENTRY_PROXY_URL}/api/v1/relay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
