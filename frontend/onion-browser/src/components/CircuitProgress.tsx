@@ -100,10 +100,26 @@ export const CircuitProgress: React.FC<CircuitProgressProps> = ({
             {encryptionStage === 'complete' && 'Circuit built successfully!'}
           </div>
 
-          {/* Package Count */}
+          {/* Package Progress */}
           {packages.length > 0 && (
-            <div className="text-xs text-muted-foreground">
-              Created {packages.length} encrypted package{packages.length !== 1 ? 's' : ''}
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                Packages created: {packages.length}/3
+              </div>
+              <div className="flex gap-2">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`p-2 rounded text-xs flex-1 text-center ${
+                      i < packages.length
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    Package {i + 1}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
